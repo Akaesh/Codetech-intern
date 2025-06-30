@@ -1,0 +1,78 @@
+# MIGRATION SCRIPTS
+# 1.Using pgloader (Recommended & automated)
+
+LOAD DATABASE
+     FROM mysql://root:password@localhost/source_db
+     INTO postgresql://postgres:password@localhost/target_db
+
+WITH include no drop, create tables, create indexes, reset sequences
+
+SET work_mem to '64MB', maintenance_work_mem to '128MB'
+
+CAST type datetime to timestamptz drop default drop not null
+
+ALTER schema 'source_db' rename to 'public';
+
+# 2.Manual Migration (Alternative)
+#  Export data from MySQL
+
+mysqldump -u root -p --compatible=postgresql --no-create-db source_db > data.sql
+
+# Modify SQL file for PostgreSQL compatibility
+
+Change AUTO_INCREMENT to SERIAL
+
+Replace backticks (`) with double quotes (")
+
+Adjust data types if needed (e.g., TINYINT → BOOLEAN)
+
+# Create schema and import into PostgreSQL
+
+psql -U postgres -d target_db -f data.sql
+
+# SUMMARY REPORT
+# MIGRATION SUMMARY REPORT
+
+🔹 Project: Data Migration – MySQL to PostgreSQL
+🔹 Submitted to: CodTech
+🔹 Purpose: Seamless transfer of schema and data from MySQL to PostgreSQL, maintaining integrity
+
+# Steps
+
+-----BEGIN MIGRATION REPORT-----
+
+CodTech Internship: Final Deliverable
+Task: Database Migration (MySQL to PostgreSQL)
+
+Steps Performed:
+
+1. Analyzed Source Schema
+   - Identified data types, primary and foreign keys, indexes.
+
+2. Prepared PostgreSQL-Compatible Schema
+   - Adjusted data types and constraints.
+   - Replaced AUTO_INCREMENT with SERIAL.
+
+3. Migrated Data Using pgloader
+   - Used pgloader to automate schema and data migration.
+   - Preserved relationships, constraints, and indexes.
+
+4. Integrity Validation
+   - Row counts match between MySQL and PostgreSQL
+   - No NULLs or broken references in foreign keys
+   - No duplicate entries post-migration
+   - Random sampling confirmed data accuracy
+
+5. Ran Test Queries
+   - JOINs, WHERE conditions, and row comparisons ran successfully
+   - Ensured migrated data is queryable and reliable
+
+Status:  Migration Completed Successfully
+
+# Example
+
+-- Row count check
+SELECT COUNT(*) FROM students;  -- on both MySQL and PostgreSQL
+
+-- Foreign key check
+SELECT course_id FROM students WHERE course_id NOT IN (SELECT course_id FROM courses);
